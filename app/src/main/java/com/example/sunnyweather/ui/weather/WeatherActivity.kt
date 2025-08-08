@@ -1,14 +1,19 @@
 package com.example.sunnyweather.ui.weather
 
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
+import androidx.transition.Slide
 import com.example.sunnyweather.R
 import com.example.sunnyweather.databinding.ActivityWeatherBinding
 import com.example.sunnyweather.logic.model.Weather
@@ -46,8 +51,41 @@ class WeatherActivity : AppCompatActivity() {
 				Toast.makeText(this, "无法成功获取天气信息", Toast.LENGTH_SHORT).show()
 				result.exceptionOrNull()?.printStackTrace()
 			}
+			binding.swipeFresh.isRefreshing = false
 		}
+		binding.swipeFresh.setColorSchemeResources(com.google.android.material.R.color.design_default_color_primary)
+		refreshWeather()
+		binding.swipeFresh.setOnRefreshListener {
+			refreshWeather()
+		}
+
+		binding.now.navBtn.setOnClickListener {
+			binding.drawerLayout.openDrawer(GravityCompat.START)
+		}
+		binding.drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener{
+			override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+				TODO("Not yet implemented")
+			}
+
+			override fun onDrawerOpened(drawerView: View) {
+				TODO("Not yet implemented")
+			}
+
+			override fun onDrawerClosed(drawerView: View) {
+				val manager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+				manager.hideSoftInputFromWindow(drawerView.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+			}
+
+			override fun onDrawerStateChanged(newState: Int) {
+				TODO("Not yet implemented")
+			}
+
+		})
+	}
+
+	fun refreshWeather() {
 		viewModel.refreshWeather(viewModel.locationLng, viewModel.locationLat)
+		binding.swipeFresh.isRefreshing = true
 	}
 
 	private fun showWeatherInfo(weather: Weather) {
